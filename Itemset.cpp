@@ -200,27 +200,37 @@ bool Itemset::isSubset(std::string subset){
     return true;
 }
 
-bool Itemset::isHUG(int minUtil, ItemsetTable& itemsetTable){
-    
-    /* prune Low util itemset */
-    if( utility < minUtil )
-        return false;
+bool Itemset::isGenerator(ItemsetTable& itemsetTable){
 
     /* check if it is genertor:
        all support(subset) must be greater than its support
+       if itemset len = 1 than it must me a generator
     */
     int itemsetLen = itemset.length();
 
-    Itemset* itemsetCursor = itemsetTable.headList[ itemsetLen-1 ];
+    if( itemsetLen > 1 ){
 
-    while(itemsetCursor){
-        
-        if( isSubset(itemsetCursor->itemset)
-         && itemsetCursor->support == support )
-            return false;
+        Itemset* itemsetCursor = itemsetTable.headList[ itemsetLen-1 ];
 
-        itemsetCursor = itemsetCursor->next;
+        while(itemsetCursor){
+            
+            if( isSubset(itemsetCursor->itemset)
+             && itemsetCursor->support == support )
+                return false;
+
+            itemsetCursor = itemsetCursor->next;
+        }
     }
+
+    return true;
+
+}
+
+bool Itemset::isHUI(int minUtil){
+    
+    /* check if it is High Util Itemset */
+    if( utility < minUtil )
+        return false;
 
     return true;
 }

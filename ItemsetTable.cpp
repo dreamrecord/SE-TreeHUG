@@ -188,6 +188,18 @@ void ItemsetTable::genHUG(int minUtil, Dataset& dataset){
             /* generate ID List (compute support) */
             itemsetCursor->genIDList(dataset, *this);
 
+            /* for a itemset X :
+               (if X is a generator => subset(X) is a generator) implies
+               (if subset(X) not a generator => X not a generator)
+               
+               => prune those itemsets X that are not generators
+            */
+            if( !( itemsetCursor->isGenerator(*this) ) ){
+
+                itemsetCursor = delItemset(itemsetCursor->itemset);
+                continue;
+            }
+
             /* compute TWU from ID List */
             itemsetCursor->computeTWU(dataset);
             
@@ -205,8 +217,8 @@ void ItemsetTable::genHUG(int minUtil, Dataset& dataset){
             /* generate util list */
             itemsetCursor->genUtilList(dataset, *this);
             
-            /* check if it is HUG and print result */
-            if( itemsetCursor->isHUG(minUtil, *this) )
+            /* check if it is HUI and print result */
+            if( itemsetCursor->isHUI(minUtil) )
                 itemsetCursor -> printItemsetDetails();
 
             itemsetCursor = itemsetCursor->next;

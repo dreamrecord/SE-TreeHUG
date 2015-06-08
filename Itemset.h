@@ -26,7 +26,8 @@ public:
     void genIDList(Dataset& dataset, ItemsetTable& itemsetTable);
     void genUtilList(Dataset& dataset, ItemsetTable& itemsetTable);
     bool isSubset(std::string subset);
-    bool isHUG(int minUtil, ItemsetTable& itemsetTable);
+    bool isGenerator(ItemsetTable& itemsetTable);
+    bool isHUI(int minUtil);
     void computeTWU(Dataset& dataset);
     int  retTWU();
     void printIDList();
