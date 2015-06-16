@@ -16,10 +16,10 @@ class ItemsetTable{
 
 public:
     ItemsetTable(int RHSNumOfHeads);
-    void     addItemset(std::string RHSItemset);
-    Itemset* delItemset(std::string RHSItemset);
-    bool     subsetExist(std::string itemset, std::vector<int>& subset, int lenOfSubset);
-    bool     allSubsetExist(std::string itemset, int lenOfSubset);
+    void     addItemset(std::vector<std::string>& RHSItemset);
+    Itemset* delItemset(std::vector<std::string>& RHSItemset);
+    bool     subsetExist(std::vector<std::string>& itemset, std::vector<int>& subset, int lenOfSubset);
+    bool     allSubsetExist(std::vector<std::string>& itemset, int lenOfSubset);
     void     genNextLayer(int layer);
     void     genHUG(int minUtil, Dataset& dataset);
     void     printItemsetTable();

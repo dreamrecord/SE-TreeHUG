@@ -70,7 +70,9 @@ int main (int argc, char** argv){
         It != unitProfit.end() ;
         It++){
         
-        itemsetTable.addItemset(It->first);
+        std::vector<std::string> tempItem;
+        tempItem.push_back(It->first);
+        itemsetTable.addItemset(tempItem);
     }
     
     int minUtil = atoi(argv[3]);

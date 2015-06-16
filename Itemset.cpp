@@ -3,7 +3,7 @@
 #include "Dataset.h"
 
 /* Itemset functions implementation */
-Itemset::Itemset(std::string RHSItemset){
+Itemset::Itemset(std::vector<std::string>& RHSItemset){
     
     itemset = RHSItemset;
     utility = 0;
@@ -15,7 +15,7 @@ Itemset::Itemset(std::string RHSItemset){
 
 void Itemset::genIDList(Dataset& dataset, ItemsetTable& itemsetTable){
     
-    int itemsetLen = itemset.length();
+    int itemsetLen = itemset.size();
 
     if(itemsetLen == 1){
         
@@ -24,7 +24,7 @@ void Itemset::genIDList(Dataset& dataset, ItemsetTable& itemsetTable){
         */
         for(int i=1 ; i<=dataset.retNumOfTransac() ; i++){
             
-            if( dataset.existInTransac(itemset, i) )
+            if( dataset.existInTransac(itemset[0], i) )
                 idList.insert(i);
         }
     }
@@ -36,11 +36,11 @@ void Itemset::genIDList(Dataset& dataset, ItemsetTable& itemsetTable){
            IDList(ABC)
            intersact IDList(AB) with IDList(AC)
         */
-        std::string subItemset1 = itemset.substr(0, itemsetLen-2);
-        std::string subItemset2 = subItemset1;
+        std::vector<std::string> subItemset1(itemset.begin(), itemset.end()-2);
+        std::vector<std::string> subItemset2 = subItemset1;
 
-        subItemset1 += itemset[itemsetLen-2];
-        subItemset2 += itemset[itemsetLen-1];
+        subItemset1.push_back( itemset[ itemsetLen-2 ] );
+        subItemset2.push_back( itemset[ itemsetLen-1 ] );
         
         Itemset* itemsetCursor1 = itemsetTable.headList[ itemsetLen-1 ];
         Itemset* itemsetCursor2 = itemsetTable.headList[ itemsetLen-1 ];
@@ -79,7 +79,7 @@ void Itemset::genIDList(Dataset& dataset, ItemsetTable& itemsetTable){
 
 void Itemset::genUtilList(Dataset& dataset, ItemsetTable& itemsetTable){
     
-    int itemsetLen = itemset.length();
+    int itemsetLen = itemset.size();
 
     if(itemsetLen == 1){
         
@@ -90,7 +90,7 @@ void Itemset::genUtilList(Dataset& dataset, ItemsetTable& itemsetTable){
             It != idList.end() ;
             It++){
             
-            int itemUtil = dataset.retItemUtilInTransac(itemset, *It);
+            int itemUtil = dataset.retItemUtilInTransac(itemset[0], *It);
             utilList.insert( std::pair<int, int>(*It, itemUtil) );
             utility += itemUtil;
         }
@@ -102,11 +102,11 @@ void Itemset::genUtilList(Dataset& dataset, ItemsetTable& itemsetTable){
         */
 
         /* prev layer: 2 cursors */
-        std::string subItemset1 = itemset.substr(0, itemsetLen-2);
-        std::string subItemset2 = subItemset1;
+        std::vector<std::string> subItemset1(itemset.begin(), itemset.end()-2);
+        std::vector<std::string> subItemset2 = subItemset1;
 
-        subItemset1 += itemset[itemsetLen-2];
-        subItemset2 += itemset[itemsetLen-1];
+        subItemset1.push_back( itemset[ itemsetLen-2 ] );
+        subItemset2.push_back( itemset[ itemsetLen-1 ] );
         
         Itemset* itemsetCursor1 = itemsetTable.headList[ itemsetLen-1 ];
         Itemset* itemsetCursor2 = itemsetTable.headList[ itemsetLen-1 ];
@@ -151,7 +151,7 @@ void Itemset::genUtilList(Dataset& dataset, ItemsetTable& itemsetTable){
             */
 
             /* second prev layer: 1 cursor */
-            std::string subItemset3 = itemset.substr(0, itemsetLen-2);
+            std::vector<std::string> subItemset3(itemset.begin(), itemset.end()-2);
 
             Itemset* itemsetCursor3 = itemsetTable.headList[ itemsetLen-2 ];
 
@@ -185,15 +185,13 @@ void Itemset::genUtilList(Dataset& dataset, ItemsetTable& itemsetTable){
     }
 }
 
-bool Itemset::isSubset(std::string subset){
+bool Itemset::isSubset(std::vector<std::string>& subset){
     
-    /* check if string(subset) is string(itemset) */
-    for(int i=0 ; i<subset.length() ; i++){
-       
-        std::size_t foundPos = itemset.find(subset[i]);
+    /* check if set(subset) is subset of set(itemset) */
+    for(int i=0 ; i<subset.size() ; i++){
         
         /* char subset[i] not found in itemset */
-        if( foundPos == std::string::npos )
+        if( std::find(itemset.begin(), itemset.end(), subset[i]) == itemset.end() )
             return false;
     }
 
@@ -206,7 +204,7 @@ bool Itemset::isGenerator(ItemsetTable& itemsetTable){
        all support(subset) must be greater than its support
        if itemset len = 1 than it must me a generator
     */
-    int itemsetLen = itemset.length();
+    int itemsetLen = itemset.size();
 
     if( itemsetLen > 1 ){
 
@@ -265,5 +263,12 @@ void Itemset::printIDList(){
 
 void Itemset::printItemsetDetails(){
     
-    std::cout << itemset << " " << utility << " " << support << " " << TWU <<std::endl;
+    std::cout << "< ";
+
+    for(int i=0 ; i<itemset.size()-1 ; i++)
+        std::cout << itemset[i] << ", ";
+
+    std::cout << itemset[itemset.size()-1] << " >";
+
+    std::cout << utility << " " << support << " " << TWU <<std::endl;
 }

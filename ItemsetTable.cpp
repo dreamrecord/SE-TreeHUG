@@ -9,9 +9,9 @@ ItemsetTable::ItemsetTable(int RHSNumOfHeads){
     numOfHeads = RHSNumOfHeads;
 }
 
-void ItemsetTable::addItemset(std::string RHSItemset){
+void ItemsetTable::addItemset(std::vector<std::string>& RHSItemset){
    
-    int itemsetLen = RHSItemset.length();
+    int itemsetLen = RHSItemset.size();
     
     /* add the new Itemset to the end of the list */
     Itemset* newItemset = new Itemset(RHSItemset);
@@ -36,13 +36,13 @@ void ItemsetTable::addItemset(std::string RHSItemset){
     }
 }
 
-Itemset* ItemsetTable::delItemset(std::string RHSItemset){
+Itemset* ItemsetTable::delItemset(std::vector<std::string>& RHSItemset){
     
     /* the return itemset
        if empty list return NULL
     */
     Itemset* retItemset = NULL;
-    int itemsetLen = RHSItemset.length();
+    int itemsetLen = RHSItemset.size();
     Itemset* itemsetCursor = headList[itemsetLen];
     
     /* find the itemset */
@@ -82,13 +82,13 @@ Itemset* ItemsetTable::delItemset(std::string RHSItemset){
     return retItemset;
 }
 
-bool ItemsetTable::subsetExist(std::string itemset, std::vector<int>& subset, int lenOfSubset){
+bool ItemsetTable::subsetExist(std::vector<std::string>& itemset, std::vector<int>& subset, int lenOfSubset){
     
     /* check if subset exist in the previous layer */
-    std::string realItemset("");
+    std::vector<std::string> realItemset;
 
     for(int i=lenOfSubset-1 ; i>=0 ; i--)
-        realItemset += itemset[ subset[i]-1 ];
+        realItemset.push_back( itemset[ subset[i]-1 ] );
     
     Itemset* itemsetCursor = headList[lenOfSubset];
     
@@ -103,7 +103,7 @@ bool ItemsetTable::subsetExist(std::string itemset, std::vector<int>& subset, in
     return false;
 }
 
-bool ItemsetTable::allSubsetExist(std::string itemset, int lenOfSubset){
+bool ItemsetTable::allSubsetExist(std::vector<std::string>& itemset, int lenOfSubset){
     
     /* check if all Len(itemset)-1 subsets of itemset exist */
     std::vector<int> subset;
@@ -116,7 +116,7 @@ bool ItemsetTable::allSubsetExist(std::string itemset, int lenOfSubset){
 
     for(int i=0 ; i<lenOfSubset ; ){
         
-        if(subset[i] + i < itemset.length()){
+        if(subset[i] + i < itemset.size()){
 
             subset[i] ++;
 
@@ -145,22 +145,22 @@ void ItemsetTable::genNextLayer(int layer){
 
     while(itemsetCursor1){
         
-        std::string realItemset = itemsetCursor1->itemset.substr(0, layer-1);
-        
+        std::vector<std::string> realItemset( itemsetCursor1->itemset.begin(),
+                                              itemsetCursor1->itemset.end()-1 );
+        std::vector<std::string> realItemsetCopy = realItemset;
+
         Itemset* itemsetCursor2 = itemsetCursor1->next;
 
         while(itemsetCursor2){
 
-            realItemset = itemsetCursor1->itemset.substr(0, layer-1);
+            realItemset = realItemsetCopy;
 
-            std::size_t foundPos = itemsetCursor2->itemset.find(realItemset);
-        
             /* the 2 itemset share the same prefix */
-            if( foundPos != std::string::npos ){
+            if( itemsetCursor2->isSubset(realItemset) ){
                 
-                realItemset += itemsetCursor1->itemset[ layer-1 ];
-                realItemset += itemsetCursor2->itemset[ layer-1 ];
-                
+                realItemset.push_back(itemsetCursor1->itemset[ layer-1 ]);
+                realItemset.push_back(itemsetCursor2->itemset[ layer-1 ]);
+
                 /* if layer == 1 : simply add the new itemset
                    if layer >  1 : if   all subsets exist : add the new itemset
                                    else : skip
